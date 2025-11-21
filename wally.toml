@@ -1,0 +1,10 @@
+[package]
+name = "paramaaaaaa/linkage"
+version = "0.0.1"
+authors = ["parama"]
+license = "MIT"
+description = "Binary serialization and typed networking for Roblox, built for efficiency and low overhead."
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
