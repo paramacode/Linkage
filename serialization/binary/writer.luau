@@ -43,6 +43,22 @@ write['instance'] = function(value: Instance?)
 	write['string'](id)
 end
 
+write["cframe16"] = function(value: CFrame)
+	local currentBuffer, cursor = getBufferAndCursor()
+	allocate.expand(16, true)
+
+	local pos = value.Position
+	local axis, angle = value:ToAxisAngle()
+
+	buffer.writef32(currentBuffer, cursor, pos.X)
+	buffer.writef32(currentBuffer, cursor + 4, pos.Y)
+	buffer.writef32(currentBuffer, cursor + 8, pos.Z)
+
+	buffer.writef32(currentBuffer, cursor + 12, angle)
+
+	allocate.cursor = cursor + 16
+end
+
 write['cframe24'] = function(value: CFrame)
 	local currentBuffer, cursor = getBufferAndCursor()
 	allocate.expand(24, true)

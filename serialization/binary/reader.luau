@@ -13,6 +13,16 @@ read['boolean'] = function(currentBuffer: buffer, cursor: number): (boolean, num
     return boolValue, cursor + 1
 end
 
+read["cframe16"] = function(currentBuffer: buffer, cursor: number): (CFrame, number)
+	local x = buffer.readf32(currentBuffer, cursor)
+	local y = buffer.readf32(currentBuffer, cursor + 4)
+	local z = buffer.readf32(currentBuffer, cursor + 8)
+
+	local angle = buffer.readf32(currentBuffer, cursor + 12)
+
+	return CFrame.fromAxisAngle(Vector3.yAxis, angle) + Vector3.new(x, y, z), cursor + 16
+end
+
 read['cframe24'] = function(currentBuffer: buffer, cursor: number): (CFrame, number)
     local x = buffer.readf32(currentBuffer, cursor)
 	local y = buffer.readf32(currentBuffer, cursor + 4)
