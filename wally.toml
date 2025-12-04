@@ -1,6 +1,6 @@
 [package]
 name = "paramacode/linkage"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["parama"]
 license = "MIT"
 description = "Binary serialization and typed networking for Roblox, built for efficiency and low overhead."
