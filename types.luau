@@ -25,7 +25,7 @@ export type bufferWriterTypes = {
 	[string]: (any) -> (),
 }
 
-export type schemaTypeName = | "array" | "boolean" | "buffer" | "cframe" | "dictionary" | "f32" | "f64" | "i8" | "i16" | "i32" | "u8" | "u16" | "u32" | "string" | "vector2" | "vector3"
+export type schemaTypeName = 'array' | 'boolean' | 'buffer' | 'cframe' | 'dictionary' | 'f32' | 'f64' | 'i8' | 'i16' | 'i32' | 'u8' | 'u16' | 'u32' | 'string' | 'vector2' | 'vector3'
 export type schemaDefinition = {[string]: schemaTypeName}
 export type schemaData<D> = {[string]: any}
 

@@ -13,7 +13,7 @@ read['boolean'] = function(currentBuffer: buffer, cursor: number): (boolean, num
     return boolValue, cursor + 1
 end
 
-read["cframe16"] = function(currentBuffer: buffer, cursor: number): (CFrame, number)
+read['cframe16'] = function(currentBuffer: buffer, cursor: number): (CFrame, number)
 	local x = buffer.readf32(currentBuffer, cursor)
 	local y = buffer.readf32(currentBuffer, cursor + 4)
 	local z = buffer.readf32(currentBuffer, cursor + 8)
@@ -126,6 +126,15 @@ read['buffer'] = function(currentBuffer: buffer, cursor: number): (buffer, numbe
 	local newBuffer = buffer.create(length)
 	buffer.copy(currentBuffer, cursor, newBuffer, 0, length)
 	return newBuffer, cursor + length
+end
+
+read['instance'] = function(currentBuffer: buffer, cursor: number, references: {Instance})
+	local index = buffer.readu16(currentBuffer, cursor)
+	if index == 0 then
+		return nil, cursor + 2
+	end
+
+	return references[index], cursor + 2
 end
 
 return read

@@ -2,24 +2,64 @@
 local types = require(script.Parent.Parent.types)
 
 local allocate = {}
+local activeStreams = {}
 
-allocate.size = 1024
-allocate.cursor = 0
-allocate.currentBuffer = buffer.create(allocate.size)
+function allocate.getActive()
+	local runningThread = coroutine.running()
+	local stream = runningThread and activeStreams[runningThread]
+	assert(stream, 'No active stream bound to this coroutine')
+	return stream
+end
+
+function allocate.bind(stream)
+	local runningThread = coroutine.running()
+	assert(runningThread, `{script.Name}: allocate.bind must be called from within a running coroutine`)
+	activeStreams[runningThread] = stream
+end
+
+function allocate.unbind()
+	local runningThread = coroutine.running()
+	assert(runningThread, `{script.Name}: allocate.unbind must be called from within a running coroutine`)
+	activeStreams[runningThread] = nil
+end
+
+function allocate.withStream(stream, call)
+	assert(type(call) == 'function', 'withStream requires a function')
+	local runningThread = coroutine.running()
+	assert(runningThread, 'allocate.withStream must be called from within a running coroutine')
+	activeStreams[runningThread] = stream
+
+	local results = table.pack(xpcall(call, debug.traceback))
+	local success = results[1]
+
+	activeStreams[runningThread] = nil
+
+	if not success then
+		error(results[2])
+	end
+
+	return table.unpack(results, 2, results.n)
+end
 
 function allocate.expand(bytes: number, dynamic: boolean): buffer?
-	if allocate.cursor + bytes < allocate.size then return allocate.currentBuffer end
-	if not dynamic then return allocate.currentBuffer end
+	local stream = allocate.getActive()
+	if stream.cursor + bytes < stream.size then 
+		return stream.currentBuffer 
+	end
+
+	if not dynamic then 
+		return stream.currentBuffer 
+	end
 
 	repeat
-		allocate.size = math.floor(allocate.size * 1.5)
-	until allocate.cursor + bytes < allocate.size
+		stream.size = math.floor(stream.size * 1.5)
+	until stream.cursor + bytes < stream.size
 
-	local newBuffer = buffer.create(allocate.size)
-	buffer.copy(newBuffer, 0, allocate.currentBuffer)
-	allocate.currentBuffer = newBuffer
+	local newBuffer = buffer.create(stream.size)
+	buffer.copy(newBuffer, 0, stream.currentBuffer)
+	stream.currentBuffer = newBuffer
 
-	return allocate.currentBuffer
+	return stream.currentBuffer
 end
 
 function allocate.create(): types.streamTypes

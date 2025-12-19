@@ -5,10 +5,10 @@ local writer = require(binary.writer)
 
 local types = require(script.Parent.Parent.types)
 
-local function dictionary<K, V>(keyType: types.dataTypes<K>,valueType: types.dataTypes<V>): types.dataTypes<{[K]: V}>
+local function map<K, V>(keyType: types.dataTypes<K>, valueType: types.dataTypes<V>): types.dataTypes<{[K]: V}>
 	return {
-		serialize = function(getDictionary: {[K]: V})
-			writer['dictionary'](getDictionary, keyType.serialize, valueType.serialize)
+		serialize = function(getmap: {[K]: V})
+			writer['map'](getmap, keyType.serialize, valueType.serialize)
 		end,
 
 		deserialize = function(currentBuffer: buffer, cursor: number): ({[K]: V}, number)
@@ -28,4 +28,4 @@ local function dictionary<K, V>(keyType: types.dataTypes<K>,valueType: types.dat
 	}
 end
 
-return dictionary
+return map

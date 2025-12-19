@@ -9,7 +9,7 @@ local function buildSchemaSerializer(definition: {[string]: any})
     local fieldOrder = {} :: {string}
     local fieldSerializers: {[string]: types.normalizedSerializer} = {}
 
-    for key, _ in pairs(definition) do
+    for key, _ in definition do
         table.insert(fieldOrder, key)
     end
     table.sort(fieldOrder)
@@ -17,26 +17,25 @@ local function buildSchemaSerializer(definition: {[string]: any})
     for _, key in fieldOrder do
         local resolved = resolver.resolveNormalizedSerializer(definition[key])
         if not resolved then
-            error(`Invalid type for field '{key}'`)
+            error(`Invalid type for field {key}`)
         end
 
         fieldSerializers[key] = resolved
     end
 
     local function encodePacket(payload: {[string]: any}): buffer
-        allocate.cursor = 0
-        allocate.expand(0, true)
+        local stream = allocate.create()
 
-        for _, key in fieldOrder do
-            fieldSerializers[key].encode(payload[key])
-        end
+        local outBuffer = allocate.withStream(stream, function()
+            allocate.expand(0, true)
 
-        local size = allocate.cursor
-        local outBuffer = buffer.create(size)
+            for _, key in fieldOrder do
+                fieldSerializers[key].encode(payload[key])
+            end
 
-        if size > 0 then
-            buffer.copy(outBuffer, 0, allocate.currentBuffer, 0, size)
-        end
+            local currentBuffer = allocate.dump(stream)
+            return currentBuffer
+        end)
 
         return outBuffer
     end
